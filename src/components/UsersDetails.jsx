@@ -2,16 +2,60 @@ import style from "../styles/userDetails.module.css";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 
-const UsersDetails = ({ setModal, user }) => {
-  const { name, phone, email, username, website, company, address } = user;
-  const { city, geo, street, suite, zipcode } = address;
-  const { lat, lng } = geo;
+const UsersDetails = ({ setModal, userId }) => {
+  const [users, setUsers] = useState([]);
+  const [userObj, setUserObj] = useState({});
 
-  const { bs, catchPhrase } = company;
+  const {
+    name = "",
+    username = "",
+    email = "",
+    phone = "",
+    website = "",
+    address: { street = "", suite = "", city = "", zipcode = "", geo: { lat = "", lng = "" } = {} } = {},
+    company: { name: companyName = "", catchPhrase = "", bs = "" } = {}
+  } = userObj;
+
 
   function onClose() {
     setModal(false);
   }
+
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    const userInformation = users.find(user => user.id === userId);
+    if (userInformation) {
+      setUserObj(userInformation);
+    }
+  }, [users, userId]);
+
+  const getUsers = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}`, {
+        method: "GET",
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        console.log(result);
+
+        Swal.fire({
+          title: "Error!",
+          text: "The request failed. Please try again later.",
+          icon: "error",
+        });
+
+        return;
+      }
+
+      setUsers(result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className={style.overlay}>
@@ -35,32 +79,31 @@ const UsersDetails = ({ setModal, user }) => {
         </div>
 
         <div className={style.section}>
-          <h3>Dereccion</h3>
+          <h3>Dirección</h3>
           <div className={style.row}>
             <span>Calle</span> <strong>{street}</strong>
             <span>Suite</span> <strong>{suite}</strong>
           </div>
           <div className={style.row}>
             <span>Ciudad</span> <strong>{city}</strong>
-            <span>Codigo Postal</span> <strong>{zipcode}</strong>
+            <span>Código Postal</span> <strong>{zipcode}</strong>
           </div>
           <div className={style.row}>
-            <span>Geo</span> <span>{lat}</span>
-            <span>{lng}</span>
-          </div>
-        </div>
-
-        <div className={style.section}>
-          <div className={style.row}>
-            <span>Telefono</span> <strong>{phone}</strong>
-            <span>Website</span> <a href="#">{website}</a>
+            <span>Geo</span> <strong>{lat}</strong>, <strong>{lng}</strong>
           </div>
         </div>
 
         <div className={style.section}>
-          <h3>Compania</h3>
           <div className={style.row}>
-            <span>Nombre</span> <strong>{company.name}</strong>
+            <span>Teléfono</span> <strong>{phone}</strong>
+            <span>Website</span> <a href={`https://${website}`} target="_blank" rel="noopener noreferrer">{website}</a>
+          </div>
+        </div>
+
+        <div className={style.section}>
+          <h3>Compañía</h3>
+          <div className={style.row}>
+            <span>Nombre</span> <strong>{companyName}</strong>
           </div>
           <div className={style.row}>
             <span>Eslogan</span> <strong>{catchPhrase}</strong>

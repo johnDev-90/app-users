@@ -22,11 +22,7 @@ function App() {
     getUSers();
   }, [searchValue]);
 
-  useEffect(() => {
-    if (userId) {
-      setUser(users.filter((info) => info.id === userId)[0] || {});
-    }
-  }, [userId]);
+
 
   const handleChange = (e) => {
     setSearchValues(e.target.value.toLowerCase());
@@ -89,7 +85,7 @@ function App() {
       <Header />
       <SearchUsers handleChange={handleChange} onSubmit={onSubmit} />
       <UsersList users={users} handleClick={handleClick} />
-      {modal && <UsersDetails setModal={setModal} user={user} />}
+      {modal && <UsersDetails setModal={setModal} userId={userId} />}
     </div>
   );
 }
